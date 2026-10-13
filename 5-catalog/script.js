@@ -23,17 +23,21 @@ function getFiltered() {
   const sort = sortSelect.value;
 
   if (search) {
-    result = result.filter((p) => p.name === search);
+    result = result.filter((p) =>
+      p.name.toUpperCase().includes(search.toUpperCase()),
+    );
   }
 
   if (category !== "all") {
-    result = products.filter((p) => p.category !== category);
+    result = result.filter((p) => p.category === category);
   }
 
   if (sort === "asc") {
-    result.sort((a, b) => b.price - a.price);
-  } else if (sort === "desc") {
     result.sort((a, b) => a.price - b.price);
+  } else if (sort === "desc") {
+    result.sort((a, b) => b.price - a.price);
+  } else {
+    result.sort((a, b) => a.id - b.id);
   }
 
   return result;
@@ -41,13 +45,15 @@ function getFiltered() {
 
 function render() {
   const items = getFiltered();
+  const fragment = document.createDocumentFragment();
   items.forEach((p) => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `<h3>${p.name}</h3><p class="cat">${p.category}</p><p class="price">$${p.price}</p>`;
-    grid.appendChild(card);
+    fragment.appendChild(card);
   });
-  countEl.textContent = products.length;
+  grid.replaceChildren(fragment);
+  countEl.textContent = items.length;
 }
 
 searchInput.addEventListener("input", render);
@@ -56,4 +62,9 @@ sortSelect.addEventListener("change", render);
 
 resetBtn.addEventListener("click", () => {
   searchInput.value = "";
+  sortSelect.value = "default";
+  categorySelect.value = "all";
+  render();
 });
+
+render();
